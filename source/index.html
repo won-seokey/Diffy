@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Diff Viewer</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --border: #334155;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --green-bg: rgba(34, 197, 94, 0.18);
+      --green-line: #22c55e;
+      --red-bg: rgba(239, 68, 68, 0.18);
+      --red-line: #ef4444;
+      --yellow-bg: rgba(234, 179, 8, 0.18);
+      --yellow-line: #eab308;
+      --blue: #60a5fa;
+      --code-font: Consolas, Monaco, 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #020617, #0f172a);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 22px 28px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.92);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.4px;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: #1e293b;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button.primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+    }
+
+    button:hover { filter: brightness(1.1); }
+
+    main {
+      padding: 20px 28px 28px;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .workspace-main {
+      min-width: 0;
+    }
+
+    .history-panel {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: sticky;
+      top: 102px;
+      max-height: calc(100vh - 120px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: #1e293b;
+      border-bottom: 1px solid var(--border);
+      font-weight: 800;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .history-btn {
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .history-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .history-list {
+      margin: 0;
+      padding: 10px;
+      list-style: none;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-empty {
+      padding: 28px 16px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .history-item {
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0b1220;
+      overflow: hidden;
+    }
+
+    .history-item.active {
+      border-color: #60a5fa;
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.3);
+    }
+
+    .history-load {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      padding: 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .history-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #dbeafe;
+    }
+
+    .history-title-edit {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .history-title-input {
+      width: 100%;
+      border: 1px solid #334155;
+      background: #020617;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .history-title-input:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35);
+    }
+
+    .history-inline-btn {
+      border: 1px solid #334155;
+      background: #111827;
+      color: var(--text);
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+
+    .history-inline-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .history-preview {
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-delete {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid #243244;
+      background: #111827;
+      color: #fca5a5;
+      font-size: 12px;
+      padding: 7px 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .green { color: var(--green-line); }
+    .red { color: var(--red-line); }
+    .yellow { color: var(--yellow-line); }
+    .blue { color: var(--blue); }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .editor-panel, .diff-panel {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      background: #1e293b;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header span:last-child {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .code-input-wrap {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      height: 300px;
+      background: #020617;
+    }
+
+    .line-gutter {
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.7);
+      user-select: none;
+    }
+
+    .line-numbers {
+      padding: 14px 8px;
+      text-align: right;
+      color: var(--muted);
+      font-family: var(--code-font);
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre;
+      will-change: transform;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+      border: 0;
+      outline: 0;
+      padding: 14px;
+      background: #020617;
+      color: var(--text);
+      font-family: var(--code-font);
+      font-size: 14px;
+      line-height: 1.5;
+      tab-size: 2;
+      overflow: auto;
+    }
+
+    .diff-panel {
+      margin-top: 8px;
+    }
+
+    .diff-header-grid, .diff-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .diff-header-grid > div {
+      padding: 12px 14px;
+      background: #1e293b;
+      border-bottom: 1px solid var(--border);
+      font-weight: 800;
+    }
+
+    .diff-header-grid > div:first-child,
+    .diff-cell:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    .diff-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .diff-search {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 4px;
+    }
+
+    .diff-search-input {
+      width: 180px;
+      border: 1px solid #334155;
+      background: #020617;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .diff-search-input:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35);
+    }
+
+    .nav-btn {
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .diff-position {
+      min-width: 56px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .diff-body {
+      max-height: 560px;
+      overflow: auto;
+      font-family: var(--code-font);
+      font-size: 13px;
+      background: #020617;
+    }
+
+    .diff-cell {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .line-no {
+      padding: 5px 8px;
+      text-align: right;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.7);
+      border-right: 1px solid rgba(51, 65, 85, 0.6);
+      user-select: none;
+    }
+
+    .code-line {
+      padding: 5px 10px;
+      min-height: 28px;
+    }
+
+    .same .code-line { color: #d1d5db; }
+    .added .code-line, .added .line-no { background: var(--green-bg); }
+    .added .code-line { border-left: 4px solid var(--green-line); }
+    .deleted .code-line, .deleted .line-no { background: var(--red-bg); }
+    .deleted .code-line { border-left: 4px solid var(--red-line); }
+    .modified .code-line, .modified .line-no { background: var(--yellow-bg); }
+    .modified .code-line { border-left: 4px solid var(--yellow-line); }
+    .blank .code-line { color: transparent; }
+
+    .word-del {
+      background: rgba(239, 68, 68, 0.45);
+      border-radius: 3px;
+    }
+
+    .word-add {
+      background: rgba(34, 197, 94, 0.42);
+      border-radius: 3px;
+    }
+
+    .diff-row.active-change {
+      outline: 2px solid #60a5fa;
+      outline-offset: -2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .diff-row.search-match {
+      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.3);
+    }
+
+    .diff-row.active-search-match {
+      box-shadow: inset 0 0 0 2px rgba(249, 115, 22, 0.95);
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 10px 0 0;
+    }
+
+    .legend-item::before {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 6px;
+      border-radius: 2px;
+    }
+
+    .legend-add::before { background: var(--green-line); }
+    .legend-del::before { background: var(--red-line); }
+    .legend-mod::before { background: var(--yellow-line); }
+
+    .empty-state {
+      padding: 36px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1200px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .history-panel {
+        position: static;
+        max-height: 420px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .stats, .editor-grid, .diff-header-grid, .diff-row {
+        grid-template-columns: 1fr;
+      }
+      .diff-header-grid > div:first-child,
+      .diff-cell:first-child {
+        border-right: 0;
+      }
+      .diff-cell:first-child {
+        border-bottom: 1px dashed var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-row">
+      <div>
+        <h1>Code Diff Viewer</h1>
+        <p class="subtitle">왼쪽 원본 코드와 오른쪽 수정 코드를 비교하여 라인별 변경사항을 확인합니다.</p>
+      </div>
+      <div class="actions">
+        <button id="sampleBtn">샘플 입력</button>
+        <button id="clearBtn">초기화</button>
+        <button class="primary" id="compareBtn">수동 재비교</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="workspace-grid">
+      <div class="workspace-main">
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-label">추가된 라인</div>
+        <div class="stat-value green" id="addedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">삭제된 라인</div>
+        <div class="stat-value red" id="deletedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">수정된 라인</div>
+        <div class="stat-value yellow" id="modifiedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">전체 변경 건수</div>
+        <div class="stat-value blue" id="totalCount">0</div>
+      </div>
+    </section>
+
+    <section class="editor-grid">
+      <div class="editor-panel">
+        <div class="panel-header">
+          <span>원본 코드</span>
+          <span>Before</span>
+        </div>
+        <div class="code-input-wrap">
+          <div class="line-gutter">
+            <div class="line-numbers" id="leftLineNumbers">1</div>
+          </div>
+          <textarea id="leftCode" spellcheck="false" placeholder="원본 코드를 붙여넣으세요."></textarea>
+        </div>
+      </div>
+
+      <div class="editor-panel">
+        <div class="panel-header">
+          <span>수정된 코드</span>
+          <span>After</span>
+        </div>
+        <div class="code-input-wrap">
+          <div class="line-gutter">
+            <div class="line-numbers" id="rightLineNumbers">1</div>
+          </div>
+          <textarea id="rightCode" spellcheck="false" placeholder="수정된 코드를 붙여넣으세요."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="diff-panel">
+      <div class="panel-header">
+        <span>라인별 비교 결과</span>
+        <div class="diff-controls">
+          <button id="prevChangeBtn" class="nav-btn" disabled>이전 변경</button>
+          <button id="nextChangeBtn" class="nav-btn" disabled>다음 변경</button>
+          <span id="changePosition" class="diff-position">0 / 0</span>
+          <div class="diff-search">
+            <input id="diffSearchInput" class="diff-search-input" type="text" placeholder="비교 결과 검색" />
+            <button id="searchPrevBtn" class="nav-btn" disabled>검색 이전</button>
+            <button id="searchNextBtn" class="nav-btn" disabled>검색 다음</button>
+            <span id="searchPosition" class="diff-position">0 / 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="diff-header-grid">
+        <div>원본</div>
+        <div>수정본</div>
+      </div>
+      <div class="diff-body" id="diffBody">
+        <div class="empty-state">코드를 입력하면 자동으로 비교됩니다. 필요 시 [수동 재비교]를 누르세요.</div>
+      </div>
+    </section>
+
+    <div class="legend">
+      <span class="legend-item legend-add">추가</span>
+      <span class="legend-item legend-del">삭제</span>
+      <span class="legend-item legend-mod">수정</span>
+    </div>
+      </div>
+
+      <aside class="history-panel">
+        <div class="history-header">
+          <span>비교 기록 탭</span>
+          <div class="history-actions">
+            <button id="saveHistoryBtn" class="history-btn">현재 저장</button>
+            <button id="clearHistoryBtn" class="history-btn">전체 삭제</button>
+          </div>
+        </div>
+        <ul id="historyList" class="history-list"></ul>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const leftCode = document.getElementById('leftCode');
+    const rightCode = document.getElementById('rightCode');
+    const leftLineNumbers = document.getElementById('leftLineNumbers');
+    const rightLineNumbers = document.getElementById('rightLineNumbers');
+    const diffBody = document.getElementById('diffBody');
+    const prevChangeBtn = document.getElementById('prevChangeBtn');
+    const nextChangeBtn = document.getElementById('nextChangeBtn');
+    const changePositionEl = document.getElementById('changePosition');
+    const diffSearchInput = document.getElementById('diffSearchInput');
+    const searchPrevBtn = document.getElementById('searchPrevBtn');
+    const searchNextBtn = document.getElementById('searchNextBtn');
+    const searchPositionEl = document.getElementById('searchPosition');
+    const historyListEl = document.getElementById('historyList');
+    const saveHistoryBtn = document.getElementById('saveHistoryBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+    const addedCountEl = document.getElementById('addedCount');
+    const deletedCountEl = document.getElementById('deletedCount');
+    const modifiedCountEl = document.getElementById('modifiedCount');
+    const totalCountEl = document.getElementById('totalCount');
+
+    const AUTO_COMPARE_DELAY = 220;
+    const HISTORY_KEY = 'diffViewerHistoryV1';
+    const HISTORY_SEQ_KEY = 'diffViewerHistorySeqV1';
+    const HISTORY_LIMIT = 30;
+    let autoCompareTimer = null;
+    let changeRows = [];
+    let currentChangeIndex = -1;
+    let comparisonHistory = [];
+    let activeHistoryId = null;
+    let historySequence = 0;
+    let editingHistoryId = null;
+    let searchMatchedRows = [];
+    let currentSearchIndex = -1;
+
+    document.getElementById('compareBtn').addEventListener('click', compareCodes);
+    document.getElementById('clearBtn').addEventListener('click', clearAll);
+    document.getElementById('sampleBtn').addEventListener('click', insertSample);
+    prevChangeBtn.addEventListener('click', goToPreviousChange);
+    nextChangeBtn.addEventListener('click', goToNextChange);
+    searchPrevBtn.addEventListener('click', goToPreviousSearchMatch);
+    searchNextBtn.addEventListener('click', goToNextSearchMatch);
+    saveHistoryBtn.addEventListener('click', saveCurrentComparison);
+    clearHistoryBtn.addEventListener('click', clearHistory);
+
+    leftCode.addEventListener('input', () => handleCodeInput(leftCode, leftLineNumbers));
+    rightCode.addEventListener('input', () => handleCodeInput(rightCode, rightLineNumbers));
+    leftCode.addEventListener('scroll', () => syncLineNumberScroll(leftCode, leftLineNumbers));
+    rightCode.addEventListener('scroll', () => syncLineNumberScroll(rightCode, rightLineNumbers));
+    diffSearchInput.addEventListener('input', applyDiffSearch);
+    diffSearchInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (event.shiftKey) {
+          goToPreviousSearchMatch();
+        } else {
+          goToNextSearchMatch();
+        }
+      }
+    });
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function getPreviewLine(text) {
+      const firstLine = splitLines(text)[0] || '(빈 코드)';
+      return firstLine.trim() || '(빈 코드)';
+    }
+
+    function formatHistoryTime(isoString) {
+      const date = new Date(isoString);
+      if (Number.isNaN(date.getTime())) return '-';
+      return date.toLocaleString('ko-KR', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function getCurrentStats() {
+      return {
+        added: Number(addedCountEl.textContent) || 0,
+        deleted: Number(deletedCountEl.textContent) || 0,
+        modified: Number(modifiedCountEl.textContent) || 0,
+        total: Number(totalCountEl.textContent) || 0
+      };
+    }
+
+    function loadHistoryFromStorage() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function loadHistorySequence() {
+      const raw = localStorage.getItem(HISTORY_SEQ_KEY);
+      const parsed = Number(raw);
+      return Number.isInteger(parsed) && parsed >= 0 ? parsed : 0;
+    }
+
+    function persistHistorySequence() {
+      localStorage.setItem(HISTORY_SEQ_KEY, String(historySequence));
+    }
+
+    function getNextHistoryName() {
+      historySequence += 1;
+      persistHistorySequence();
+      return `#${historySequence}`;
+    }
+
+    function persistHistory() {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(comparisonHistory));
+    }
+
+    function renderHistory() {
+      if (!comparisonHistory.length) {
+        editingHistoryId = null;
+        historyListEl.innerHTML = '<li class="history-empty">저장된 비교 기록이 없습니다.<br>코드를 비교한 뒤 [현재 저장]을 누르세요.</li>';
+        return;
+      }
+
+      historyListEl.innerHTML = comparisonHistory.map((item, idx) => {
+        const activeClass = item.id === activeHistoryId ? 'active' : '';
+        const statText = `+${item.stats.added} / -${item.stats.deleted} / ~${item.stats.modified}`;
+        const isEditing = item.id === editingHistoryId;
+        return `
+          <li class="history-item ${activeClass}" data-id="${item.id}">
+            <button class="history-load" data-role="load" data-id="${item.id}" title="기록 불러오기">
+              <div class="history-meta">
+                <span>${escapeHtml(item.title || `#${comparisonHistory.length - idx}`)}</span>
+                <span>${formatHistoryTime(item.createdAt)}</span>
+              </div>
+              <div class="history-title">${escapeHtml(item.title || `#${comparisonHistory.length - idx}`)}</div>
+              <div class="history-preview">원본: ${escapeHtml(item.leftPreview)}</div>
+              <div class="history-preview">수정: ${escapeHtml(item.rightPreview)}</div>
+              <div class="history-preview">변경: ${statText}</div>
+            </button>
+            ${isEditing ? `
+              <div class="history-title-edit" style="padding: 0 10px 8px;">
+                <input
+                  class="history-title-input"
+                  data-role="title-input"
+                  data-id="${item.id}"
+                  value="${escapeHtml(item.title || '')}"
+                  placeholder="기록 이름"
+                  autocomplete="off"
+                />
+                <button type="button" class="history-inline-btn" data-role="rename-save" data-id="${item.id}">저장</button>
+                <button type="button" class="history-inline-btn" data-role="rename-cancel" data-id="${item.id}">취소</button>
+              </div>
+            ` : ''}
+            <button class="history-delete" data-role="rename" data-id="${item.id}">이름 수정</button>
+            <button class="history-delete" data-role="delete" data-id="${item.id}">이 기록 삭제</button>
+          </li>
+        `;
+      }).join('');
+
+      if (editingHistoryId) {
+        const editorInput = historyListEl.querySelector(`.history-title-input[data-id="${editingHistoryId}"]`);
+        if (editorInput instanceof HTMLInputElement) {
+          editorInput.focus();
+          editorInput.select();
+        }
+      }
+    }
+
+    function saveCurrentComparison() {
+      const left = leftCode.value;
+      const right = rightCode.value;
+
+      if (!left.trim() && !right.trim()) {
+        return;
+      }
+
+      const latest = comparisonHistory[0];
+      if (latest && latest.left === left && latest.right === right) {
+        activeHistoryId = latest.id;
+        renderHistory();
+        return;
+      }
+
+      const stats = getCurrentStats();
+      const record = {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+        createdAt: new Date().toISOString(),
+        title: getNextHistoryName(),
+        leftPreview: getPreviewLine(left),
+        rightPreview: getPreviewLine(right),
+        left,
+        right,
+        stats
+      };
+
+      comparisonHistory.unshift(record);
+      if (comparisonHistory.length > HISTORY_LIMIT) {
+        comparisonHistory = comparisonHistory.slice(0, HISTORY_LIMIT);
+      }
+      activeHistoryId = record.id;
+      persistHistory();
+      renderHistory();
+    }
+
+    function loadHistoryRecord(recordId) {
+      const record = comparisonHistory.find(item => item.id === recordId);
+      if (!record) return;
+
+      leftCode.value = record.left;
+      rightCode.value = record.right;
+      refreshLineNumbers(leftCode, leftLineNumbers);
+      refreshLineNumbers(rightCode, rightLineNumbers);
+      compareCodes();
+      activeHistoryId = record.id;
+      renderHistory();
+    }
+
+    function removeHistoryRecord(recordId) {
+      comparisonHistory = comparisonHistory.filter(item => item.id !== recordId);
+      if (activeHistoryId === recordId) {
+        activeHistoryId = null;
+      }
+      persistHistory();
+      renderHistory();
+    }
+
+    function clearHistory() {
+      comparisonHistory = [];
+      activeHistoryId = null;
+      editingHistoryId = null;
+      historySequence = 0;
+      persistHistorySequence();
+      persistHistory();
+      renderHistory();
+    }
+
+    function startEditingHistoryRecord(recordId) {
+      const record = comparisonHistory.find(item => item.id === recordId);
+      if (!record) return;
+
+      editingHistoryId = recordId;
+      renderHistory();
+    }
+
+    function cancelEditingHistoryRecord() {
+      editingHistoryId = null;
+      renderHistory();
+    }
+
+    function commitEditingHistoryRecord(recordId) {
+      const record = comparisonHistory.find(item => item.id === recordId);
+      if (!record) return;
+
+      const inputEl = historyListEl.querySelector(`.history-title-input[data-id="${recordId}"]`);
+      if (!(inputEl instanceof HTMLInputElement)) return;
+
+      const title = inputEl.value.trim();
+      if (!title) {
+        inputEl.focus();
+        return;
+      }
+
+      record.title = title;
+      editingHistoryId = null;
+      persistHistory();
+      renderHistory();
+    }
+
+    function splitLines(text) {
+      return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+    }
+
+    function buildLineNumberText(text) {
+      const lineCount = splitLines(text).length;
+      return Array.from({ length: lineCount }, (_, idx) => idx + 1).join('\n');
+    }
+
+    function refreshLineNumbers(textarea, lineNumbersEl) {
+      lineNumbersEl.textContent = buildLineNumberText(textarea.value);
+      syncLineNumberScroll(textarea, lineNumbersEl);
+    }
+
+    function syncLineNumberScroll(textarea, lineNumbersEl) {
+      lineNumbersEl.style.transform = `translateY(${-textarea.scrollTop}px)`;
+    }
+
+    function scheduleAutoCompare() {
+      clearTimeout(autoCompareTimer);
+      autoCompareTimer = setTimeout(compareCodes, AUTO_COMPARE_DELAY);
+    }
+
+    function handleCodeInput(textarea, lineNumbersEl) {
+      refreshLineNumbers(textarea, lineNumbersEl);
+      scheduleAutoCompare();
+    }
+
+    function tokenizeForInlineDiff(line) {
+      return line.match(/\s+|[A-Za-z0-9_]+|[^A-Za-z0-9_\s]/g) || [];
+    }
+
+    function buildInlineDiffHtml(leftText, rightText) {
+      const leftTokens = tokenizeForInlineDiff(leftText);
+      const rightTokens = tokenizeForInlineDiff(rightText);
+      const m = leftTokens.length;
+      const n = rightTokens.length;
+      const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+      for (let i = m - 1; i >= 0; i--) {
+        for (let j = n - 1; j >= 0; j--) {
+          if (leftTokens[i] === rightTokens[j]) {
+            dp[i][j] = dp[i + 1][j + 1] + 1;
+          } else {
+            dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+          }
+        }
+      }
+
+      const ops = [];
+      let i = 0;
+      let j = 0;
+      while (i < m && j < n) {
+        if (leftTokens[i] === rightTokens[j]) {
+          ops.push({ type: 'same', value: leftTokens[i] });
+          i++;
+          j++;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          ops.push({ type: 'del', value: leftTokens[i] });
+          i++;
+        } else {
+          ops.push({ type: 'add', value: rightTokens[j] });
+          j++;
+        }
+      }
+
+      while (i < m) {
+        ops.push({ type: 'del', value: leftTokens[i++] });
+      }
+      while (j < n) {
+        ops.push({ type: 'add', value: rightTokens[j++] });
+      }
+
+      let leftHtml = '';
+      let rightHtml = '';
+
+      for (const op of ops) {
+        const escaped = escapeHtml(op.value);
+        if (op.type === 'same') {
+          leftHtml += escaped;
+          rightHtml += escaped;
+        }
+        if (op.type === 'del') {
+          leftHtml += `<span class="word-del">${escaped}</span>`;
+        }
+        if (op.type === 'add') {
+          rightHtml += `<span class="word-add">${escaped}</span>`;
+        }
+      }
+
+      return {
+        leftHtml: leftHtml || ' ',
+        rightHtml: rightHtml || ' '
+      };
+    }
+
+    function updateChangeNavigationState() {
+      const hasChanges = changeRows.length > 0;
+      prevChangeBtn.disabled = !hasChanges;
+      nextChangeBtn.disabled = !hasChanges;
+      changePositionEl.textContent = hasChanges ? `${currentChangeIndex + 1} / ${changeRows.length}` : '0 / 0';
+    }
+
+    function setActiveChange(index, shouldScroll = true) {
+      if (!changeRows.length) {
+        currentChangeIndex = -1;
+        updateChangeNavigationState();
+        return;
+      }
+
+      if (currentChangeIndex >= 0 && changeRows[currentChangeIndex]) {
+        changeRows[currentChangeIndex].classList.remove('active-change');
+      }
+
+      currentChangeIndex = ((index % changeRows.length) + changeRows.length) % changeRows.length;
+      const activeRow = changeRows[currentChangeIndex];
+      activeRow.classList.add('active-change');
+
+      if (shouldScroll) {
+        activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      updateChangeNavigationState();
+    }
+
+    function goToPreviousChange() {
+      if (!changeRows.length) return;
+      setActiveChange(currentChangeIndex - 1);
+    }
+
+    function goToNextChange() {
+      if (!changeRows.length) return;
+      setActiveChange(currentChangeIndex + 1);
+    }
+
+    function updateSearchNavigationState() {
+      const hasMatches = searchMatchedRows.length > 0;
+      searchPrevBtn.disabled = !hasMatches;
+      searchNextBtn.disabled = !hasMatches;
+      searchPositionEl.textContent = hasMatches ? `${currentSearchIndex + 1} / ${searchMatchedRows.length}` : '0 / 0';
+    }
+
+    function setActiveSearchMatch(index, shouldScroll = true) {
+      if (!searchMatchedRows.length) {
+        currentSearchIndex = -1;
+        updateSearchNavigationState();
+        return;
+      }
+
+      if (currentSearchIndex >= 0 && searchMatchedRows[currentSearchIndex]) {
+        searchMatchedRows[currentSearchIndex].classList.remove('active-search-match');
+      }
+
+      currentSearchIndex = ((index % searchMatchedRows.length) + searchMatchedRows.length) % searchMatchedRows.length;
+      const activeRow = searchMatchedRows[currentSearchIndex];
+      activeRow.classList.add('active-search-match');
+
+      if (shouldScroll) {
+        activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      updateSearchNavigationState();
+    }
+
+    function goToPreviousSearchMatch() {
+      if (!searchMatchedRows.length) return;
+      setActiveSearchMatch(currentSearchIndex - 1);
+    }
+
+    function goToNextSearchMatch() {
+      if (!searchMatchedRows.length) return;
+      setActiveSearchMatch(currentSearchIndex + 1);
+    }
+
+    function applyDiffSearch() {
+      const query = diffSearchInput.value.trim().toLowerCase();
+      const allRows = Array.from(diffBody.querySelectorAll('.diff-row'));
+
+      allRows.forEach(row => {
+        row.classList.remove('search-match', 'active-search-match');
+      });
+
+      if (!query) {
+        searchMatchedRows = [];
+        currentSearchIndex = -1;
+        updateSearchNavigationState();
+        return;
+      }
+
+      const previousRow = currentSearchIndex >= 0 ? searchMatchedRows[currentSearchIndex] : null;
+
+      searchMatchedRows = allRows.filter(row => {
+        const leftRaw = decodeURIComponent(row.dataset.leftRaw || '').toLowerCase();
+        const rightRaw = decodeURIComponent(row.dataset.rightRaw || '').toLowerCase();
+        const isMatch = leftRaw.includes(query) || rightRaw.includes(query);
+        if (isMatch) row.classList.add('search-match');
+        return isMatch;
+      });
+
+      if (!searchMatchedRows.length) {
+        currentSearchIndex = -1;
+        updateSearchNavigationState();
+        return;
+      }
+
+      const restoredIndex = previousRow ? searchMatchedRows.indexOf(previousRow) : -1;
+      setActiveSearchMatch(restoredIndex >= 0 ? restoredIndex : 0, false);
+    }
+
+    // LCS(Longest Common Subsequence) 기반 라인 diff
+    function buildDiff(beforeLines, afterLines) {
+      const m = beforeLines.length;
+      const n = afterLines.length;
+      const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+      for (let i = m - 1; i >= 0; i--) {
+        for (let j = n - 1; j >= 0; j--) {
+          if (beforeLines[i] === afterLines[j]) {
+            dp[i][j] = dp[i + 1][j + 1] + 1;
+          } else {
+            dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+          }
+        }
+      }
+
+      const raw = [];
+      let i = 0;
+      let j = 0;
+
+      while (i < m && j < n) {
+        if (beforeLines[i] === afterLines[j]) {
+          raw.push({ type: 'same', left: beforeLines[i], right: afterLines[j], leftNo: i + 1, rightNo: j + 1 });
+          i++;
+          j++;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          raw.push({ type: 'deleted', left: beforeLines[i], right: '', leftNo: i + 1, rightNo: '' });
+          i++;
+        } else {
+          raw.push({ type: 'added', left: '', right: afterLines[j], leftNo: '', rightNo: j + 1 });
+          j++;
+        }
+      }
+
+      while (i < m) {
+        raw.push({ type: 'deleted', left: beforeLines[i], right: '', leftNo: i + 1, rightNo: '' });
+        i++;
+      }
+
+      while (j < n) {
+        raw.push({ type: 'added', left: '', right: afterLines[j], leftNo: '', rightNo: j + 1 });
+        j++;
+      }
+
+      return pairModifiedRows(raw);
+    }
+
+    // 연속된 삭제 + 추가 라인은 '수정'으로 묶어서 보여줌
+    function pairModifiedRows(raw) {
+      const result = [];
+      let i = 0;
+
+      while (i < raw.length) {
+        const current = raw[i];
+        const next = raw[i + 1];
+
+        if (current.type === 'deleted' && next && next.type === 'added') {
+          result.push({
+            type: 'modified',
+            left: current.left,
+            right: next.right,
+            leftNo: current.leftNo,
+            rightNo: next.rightNo
+          });
+          i += 2;
+          continue;
+        }
+
+        if (current.type === 'added' && next && next.type === 'deleted') {
+          result.push({
+            type: 'modified',
+            left: next.left,
+            right: current.right,
+            leftNo: next.leftNo,
+            rightNo: current.rightNo
+          });
+          i += 2;
+          continue;
+        }
+
+        result.push(current);
+        i++;
+      }
+
+      return result;
+    }
+
+    function compareCodes() {
+      const beforeLines = splitLines(leftCode.value);
+      const afterLines = splitLines(rightCode.value);
+
+      if (!leftCode.value.trim() && !rightCode.value.trim()) {
+        diffBody.innerHTML = '<div class="empty-state">비교할 코드를 입력하세요.</div>';
+        changeRows = [];
+        currentChangeIndex = -1;
+        updateChangeNavigationState();
+        searchMatchedRows = [];
+        currentSearchIndex = -1;
+        updateSearchNavigationState();
+        updateStats(0, 0, 0);
+        return;
+      }
+
+      const diffRows = buildDiff(beforeLines, afterLines);
+      renderDiff(diffRows);
+    }
+
+    function renderDiff(rows) {
+      let added = 0;
+      let deleted = 0;
+      let modified = 0;
+      const previousIndex = currentChangeIndex;
+
+      const html = rows.map(row => {
+        if (row.type === 'added') added++;
+        if (row.type === 'deleted') deleted++;
+        if (row.type === 'modified') modified++;
+
+        const leftClass = row.type === 'added' ? 'blank' : row.type;
+        const rightClass = row.type === 'deleted' ? 'blank' : row.type;
+        const isChange = row.type !== 'same';
+        const inlineDiff = row.type === 'modified'
+          ? buildInlineDiffHtml(row.left || '', row.right || '')
+          : null;
+        const leftCodeHtml = inlineDiff ? inlineDiff.leftHtml : escapeHtml(row.left || ' ');
+        const rightCodeHtml = inlineDiff ? inlineDiff.rightHtml : escapeHtml(row.right || ' ');
+
+        return `
+          <div class="diff-row${isChange ? ' is-change' : ''}" data-left-raw="${encodeURIComponent(row.left || '')}" data-right-raw="${encodeURIComponent(row.right || '')}">
+            <div class="diff-cell ${leftClass}">
+              <div class="line-no">${row.leftNo || ''}</div>
+              <div class="code-line">${leftCodeHtml}</div>
+            </div>
+            <div class="diff-cell ${rightClass}">
+              <div class="line-no">${row.rightNo || ''}</div>
+              <div class="code-line">${rightCodeHtml}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      diffBody.innerHTML = html;
+      changeRows = Array.from(diffBody.querySelectorAll('.diff-row.is-change'));
+      if (!changeRows.length) {
+        currentChangeIndex = -1;
+        updateChangeNavigationState();
+      } else {
+        const safeIndex = previousIndex >= 0 ? Math.min(previousIndex, changeRows.length - 1) : 0;
+        setActiveChange(safeIndex, false);
+      }
+      applyDiffSearch();
+      updateStats(added, deleted, modified);
+    }
+
+    function updateStats(added, deleted, modified) {
+      addedCountEl.textContent = added;
+      deletedCountEl.textContent = deleted;
+      modifiedCountEl.textContent = modified;
+      totalCountEl.textContent = added + deleted + modified;
+    }
+
+    function clearAll() {
+      leftCode.value = '';
+      rightCode.value = '';
+      refreshLineNumbers(leftCode, leftLineNumbers);
+      refreshLineNumbers(rightCode, rightLineNumbers);
+      diffBody.innerHTML = '<div class="empty-state">코드를 입력하면 자동으로 비교됩니다. 필요 시 [수동 재비교]를 누르세요.</div>';
+      changeRows = [];
+      currentChangeIndex = -1;
+      updateChangeNavigationState();
+      updateStats(0, 0, 0);
+      activeHistoryId = null;
+      renderHistory();
+    }
+
+    function insertSample() {
+      leftCode.value = `function add(a, b) {\n  return a + b;\n}\n\nfunction greet(name) {\n  console.log('Hello ' + name);\n}\n\nconst result = add(1, 2);\nconsole.log(result);`;
+
+      rightCode.value = `function add(a, b) {\n  const sum = a + b;\n  return sum;\n}\n\nfunction greet(name) {\n  console.log(\`Hello, \${name}!\`);\n}\n\nfunction multiply(a, b) {\n  return a * b;\n}\n\nconst result = add(10, 20);\nconsole.log(result);`;
+
+      refreshLineNumbers(leftCode, leftLineNumbers);
+      refreshLineNumbers(rightCode, rightLineNumbers);
+      compareCodes();
+    }
+
+    refreshLineNumbers(leftCode, leftLineNumbers);
+    refreshLineNumbers(rightCode, rightLineNumbers);
+    updateChangeNavigationState();
+    updateSearchNavigationState();
+
+    comparisonHistory = loadHistoryFromStorage();
+    historySequence = loadHistorySequence();
+    if (!historySequence && comparisonHistory.length) {
+      const seqFromTitles = comparisonHistory
+        .map(item => Number(String(item.title || '').replace('#', '')))
+        .filter(value => Number.isInteger(value) && value > 0);
+      historySequence = seqFromTitles.length ? Math.max(...seqFromTitles) : comparisonHistory.length;
+      persistHistorySequence();
+    }
+    renderHistory();
+
+    historyListEl.addEventListener('click', event => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const actionEl = target.closest('[data-role][data-id]');
+      if (!(actionEl instanceof HTMLElement)) return;
+
+      const role = actionEl.dataset.role;
+      const recordId = actionEl.dataset.id;
+
+      if (!role || !recordId) return;
+
+      if (role === 'load') {
+        loadHistoryRecord(recordId);
+        return;
+      }
+
+      if (role === 'delete') {
+        removeHistoryRecord(recordId);
+        return;
+      }
+
+      if (role === 'rename') {
+        startEditingHistoryRecord(recordId);
+        return;
+      }
+
+      if (role === 'rename-save') {
+        commitEditingHistoryRecord(recordId);
+        return;
+      }
+
+      if (role === 'rename-cancel') {
+        cancelEditingHistoryRecord();
+      }
+    });
+
+    historyListEl.addEventListener('keydown', event => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (target.dataset.role !== 'title-input') return;
+
+      const recordId = target.dataset.id;
+      if (!recordId) return;
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitEditingHistoryRecord(recordId);
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelEditingHistoryRecord();
+      }
+    });
+  </script>
+</body>
+</html>
