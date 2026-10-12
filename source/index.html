@@ -32,6 +32,8 @@
     [hidden] { display: none !important; }
 
     body {
+      display: flex;
+      flex-direction: column;
       margin: 0;
       min-height: 100vh;
       background: linear-gradient(135deg, #020617, #0f172a);
@@ -93,6 +95,7 @@
     button:hover { filter: brightness(1.1); }
 
     main {
+      flex: 1;
       padding: 20px 28px 28px;
     }
 
@@ -970,7 +973,8 @@
 
     @media print {
       @page { margin: 18mm; }
-      body.print-markdown { min-height: 0; background: #fff; color: #111827; }
+      body { display: block; }
+      body.print-markdown { display: block; min-height: 0; background: #fff; color: #111827; }
       body.print-markdown > header,
       body.print-markdown > footer { display: none !important; }
       body.print-markdown > main { padding: 0; }
