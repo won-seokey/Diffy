@@ -891,6 +891,31 @@
     .markdown-workspace.preview-focus .markdown-editor-panel,
     .markdown-workspace.preview-focus .markdown-splitter { display: none; }
 
+    @media (min-width: 901px) {
+      body.markdown-active { height: 100vh; }
+      body.markdown-active > main {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+      body.markdown-active #markdownView {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+      }
+      body.markdown-active .markdown-grid {
+        flex: 1 1 auto;
+        min-height: 420px;
+        grid-template-rows: minmax(0, 1fr);
+      }
+      body.markdown-active .markdown-editor-panel,
+      body.markdown-active .markdown-preview-panel {
+        height: 100%;
+        min-height: 0;
+      }
+    }
+
     .markdown-preview > :first-child { margin-top: 0; }
     .markdown-preview > :last-child { margin-bottom: 0; }
 
@@ -974,7 +999,7 @@
     @media print {
       @page { margin: 18mm; }
       body { display: block; }
-      body.print-markdown { display: block; min-height: 0; background: #fff; color: #111827; }
+      body.print-markdown { display: block; height: auto; min-height: 0; background: #fff; color: #111827; }
       body.print-markdown > header,
       body.print-markdown > footer { display: none !important; }
       body.print-markdown > main { padding: 0; }
@@ -1332,6 +1357,7 @@
 
     function setActiveView(view, updateLocation) {
       const showMarkdown = view === 'markdown';
+      document.body.classList.toggle('markdown-active', showMarkdown);
       diffView.hidden = showMarkdown;
       markdownView.hidden = !showMarkdown;
       diffActions.hidden = showMarkdown;
