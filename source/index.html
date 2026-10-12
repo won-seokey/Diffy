@@ -635,6 +635,31 @@
       font-size: 13px;
     }
 
+    .markdown-layout-control {
+      display: grid;
+      grid-template-columns: auto minmax(110px, 190px);
+      align-items: center;
+      gap: 5px 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .markdown-layout-label {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #cbd5e1;
+    }
+
+    #markdownSplitRange {
+      width: 100%;
+      accent-color: #60a5fa;
+      cursor: ew-resize;
+    }
+
+    #markdownSplitRange:disabled { opacity: 0.45; cursor: not-allowed; }
+
     .markdown-toolbar-actions {
       display: flex;
       flex-wrap: wrap;
@@ -642,10 +667,42 @@
     }
 
     .markdown-grid {
+      --markdown-editor-fr: 40fr;
+      --markdown-preview-fr: 60fr;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 16px;
+      grid-template-columns: minmax(0, var(--markdown-editor-fr)) 14px minmax(0, var(--markdown-preview-fr));
+      gap: 10px;
       align-items: stretch;
+    }
+
+    .markdown-splitter {
+      position: relative;
+      align-self: stretch;
+      min-height: 620px;
+      cursor: col-resize;
+      touch-action: none;
+      user-select: none;
+      outline: none;
+    }
+
+    .markdown-splitter::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 6px;
+      width: 2px;
+      border-radius: 2px;
+      background: #334155;
+      transition: background 0.15s, width 0.15s, left 0.15s;
+    }
+
+    .markdown-splitter:hover::before,
+    .markdown-splitter:focus-visible::before,
+    .markdown-splitter.is-dragging::before {
+      left: 4px;
+      width: 6px;
+      background: #60a5fa;
     }
 
     .markdown-editor-panel,
@@ -659,6 +716,8 @@
     }
 
     .markdown-panel-header {
+      position: relative;
+      z-index: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -675,12 +734,122 @@
       font-weight: 500;
     }
 
+    .markdown-input-wrap {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+      height: 568px;
+      min-height: 0;
+      overflow: hidden;
+      background: #020617;
+    }
+
+    .markdown-line-gutter {
+      min-height: 0;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.7);
+      user-select: none;
+    }
+
+    .markdown-line-numbers {
+      margin: 0;
+      padding: 20px 8px;
+      color: var(--muted);
+      font-family: var(--code-font);
+      font-size: 14px;
+      line-height: 1.65;
+      text-align: right;
+      white-space: pre;
+      will-change: transform;
+    }
+
+    .markdown-format-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      background: #111827;
+    }
+
+    .markdown-format-btn {
+      padding: 6px 9px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .markdown-outline {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .markdown-outline summary {
+      padding: 5px 8px;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      color: #e2e8f0;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .markdown-outline summary::-webkit-details-marker { display: none; }
+    .markdown-outline summary::after { content: ' ▾'; color: var(--muted); }
+    .markdown-outline[open] summary::after { content: ' ▴'; }
+
+    .markdown-outline-nav {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 12px;
+      z-index: 5;
+      width: min(320px, calc(100% - 40px));
+      max-height: 280px;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0f172a;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .markdown-outline-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .markdown-outline-list a {
+      display: block;
+      overflow: hidden;
+      padding: 5px 8px;
+      color: #cbd5e1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .markdown-outline-list a:hover,
+    .markdown-outline-list a:focus-visible {
+      border-radius: 4px;
+      background: #1e293b;
+      color: #fff;
+    }
+
+    .markdown-outline-list [data-level="1"] a { padding-left: 8px; font-weight: 800; }
+    .markdown-outline-list [data-level="2"] a { padding-left: 20px; }
+    .markdown-outline-list [data-level="3"] a { padding-left: 32px; }
+    .markdown-outline-list [data-level="4"] a,
+    .markdown-outline-list [data-level="5"] a,
+    .markdown-outline-list [data-level="6"] a { padding-left: 44px; }
+
     #markdownInput {
       display: block;
       width: 100%;
-      min-height: 568px;
+      min-height: 0;
+      height: 100%;
       padding: 20px;
-      resize: vertical;
+      resize: none;
       border: 0;
       outline: 0;
       background: #020617;
@@ -689,6 +858,8 @@
       font-size: 14px;
       line-height: 1.65;
       tab-size: 2;
+      white-space: pre;
+      overflow: auto;
     }
 
     #markdownInput:focus-visible {
@@ -704,6 +875,10 @@
       font-size: 15px;
       line-height: 1.75;
     }
+
+    .markdown-workspace.preview-focus .markdown-grid { grid-template-columns: minmax(0, 1fr); }
+    .markdown-workspace.preview-focus .markdown-editor-panel,
+    .markdown-workspace.preview-focus .markdown-splitter { display: none; }
 
     .markdown-preview > :first-child { margin-top: 0; }
     .markdown-preview > :last-child { margin-bottom: 0; }
@@ -770,10 +945,14 @@
 
     @media (max-width: 900px) {
       .markdown-grid { grid-template-columns: 1fr; }
+      .markdown-layout-control,
+      .markdown-splitter { display: none; }
       .markdown-editor-panel,
       .markdown-preview-panel { min-height: 0; }
-      #markdownInput,
+      .markdown-input-wrap,
       .markdown-preview { min-height: 420px; }
+      .markdown-input-wrap { height: 420px; }
+      #markdownInput { height: 100%; }
       .markdown-preview { padding: 24px; }
     }
 
@@ -784,6 +963,47 @@
       .markdown-toolbar { align-items: flex-start; }
       .markdown-toolbar-actions { width: 100%; }
       .markdown-toolbar-actions button { flex: 1; }
+    }
+
+    @media print {
+      @page { margin: 18mm; }
+      body.print-markdown { min-height: 0; background: #fff; color: #111827; }
+      body.print-markdown > header,
+      body.print-markdown > footer { display: none !important; }
+      body.print-markdown > main { padding: 0; }
+      body.print-markdown #diffView,
+      body.print-markdown #markdownView .markdown-toolbar,
+      body.print-markdown #markdownView .markdown-editor-panel,
+      body.print-markdown #markdownView .markdown-splitter,
+      body.print-markdown #markdownView .markdown-preview-panel > .markdown-panel-header { display: none !important; }
+      body.print-markdown #markdownView { display: block !important; max-width: none; margin: 0; }
+      body.print-markdown #markdownView .markdown-grid { display: block; }
+      body.print-markdown #markdownView .markdown-preview-panel {
+        display: block;
+        min-height: 0;
+        overflow: visible;
+        border: 0;
+        background: #fff;
+      }
+      body.print-markdown #markdownView .markdown-preview {
+        min-height: 0;
+        padding: 0;
+        overflow: visible;
+        background: #fff;
+        color: #111827;
+      }
+      body.print-markdown #markdownView .markdown-preview a { color: #111827; }
+      body.print-markdown #markdownView .markdown-preview table { display: table; overflow: visible; }
+      body.print-markdown #markdownView .markdown-preview pre,
+      body.print-markdown #markdownView .markdown-preview blockquote,
+      body.print-markdown #markdownView .markdown-preview table { break-inside: avoid; }
+      body.print-markdown #markdownView .markdown-preview pre {
+        overflow: visible;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
     }
   </style>
 </head>
@@ -904,25 +1124,53 @@
     <section class="markdown-workspace view-panel" id="markdownView" role="tabpanel" aria-labelledby="markdownModeTab" hidden>
       <div class="markdown-toolbar">
         <span class="markdown-toolbar-copy">Markdown을 입력하면 오른쪽에 실시간으로 렌더링됩니다.</span>
+        <div class="markdown-layout-control">
+          <label class="markdown-layout-label" for="markdownSplitRange">
+            <span>편집 창 너비</span>
+            <output id="markdownSplitValue" for="markdownSplitRange">40%</output>
+          </label>
+          <input id="markdownSplitRange" type="range" min="22" max="68" value="40" aria-label="편집 창 너비" aria-controls="markdownEditorPanel markdownPreviewPanel" />
+        </div>
         <div class="markdown-toolbar-actions">
           <button id="markdownSampleBtn" type="button">샘플 입력</button>
           <button id="markdownOpenBtn" type="button">.md 파일 열기</button>
           <button class="primary" id="markdownDownloadBtn" type="button">Markdown 다운로드</button>
+          <button id="markdownPrintBtn" type="button" title="미리보기 문서를 인쇄하거나 PDF로 저장">인쇄 / PDF</button>
+          <button id="markdownFocusBtn" type="button" aria-pressed="false">미리보기 집중</button>
           <button id="markdownClearBtn" type="button">초기화</button>
           <input id="markdownFileInput" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden />
         </div>
       </div>
       <div class="markdown-grid">
-        <section class="markdown-editor-panel" aria-label="Markdown 편집기">
+        <section class="markdown-editor-panel" id="markdownEditorPanel" aria-label="Markdown 편집기">
           <div class="markdown-panel-header">
             <span>편집</span>
             <span class="markdown-panel-meta" id="markdownLineCount">0줄 · 0자</span>
           </div>
-          <textarea id="markdownInput" spellcheck="false" aria-label="Markdown 원문" placeholder="# 문서를 작성하세요&#10;&#10;작성하는 즉시 미리보기에 반영됩니다."></textarea>
+          <div class="markdown-format-toolbar" id="markdownFormatToolbar" role="toolbar" aria-label="Markdown 서식 삽입">
+            <button class="markdown-format-btn" type="button" data-format="heading" title="현재 줄을 제목 2로 변경">H2</button>
+            <button class="markdown-format-btn" type="button" data-format="bold" title="굵게 (Ctrl/Cmd+B)"><strong>B</strong></button>
+            <button class="markdown-format-btn" type="button" data-format="italic" title="기울임 (Ctrl/Cmd+I)"><em>I</em></button>
+            <button class="markdown-format-btn" type="button" data-format="code" title="인라인 코드 (Ctrl/Cmd+Shift+K)">&lt;/&gt;</button>
+            <button class="markdown-format-btn" type="button" data-format="link" title="링크 삽입 (Ctrl/Cmd+K)">링크</button>
+          </div>
+          <div class="markdown-input-wrap">
+            <div class="markdown-line-gutter" aria-hidden="true">
+              <pre class="markdown-line-numbers" id="markdownLineNumbers">1</pre>
+            </div>
+            <textarea id="markdownInput" wrap="off" spellcheck="false" aria-label="Markdown 원문" placeholder="# 문서를 작성하세요&#10;&#10;작성하는 즉시 미리보기에 반영됩니다."></textarea>
+          </div>
         </section>
-        <section class="markdown-preview-panel" aria-label="Markdown 미리보기">
+        <div class="markdown-splitter" id="markdownSplitter" role="separator" aria-label="편집 창 너비 조절" aria-orientation="vertical" aria-valuemin="22" aria-valuemax="68" aria-valuenow="40" aria-valuetext="편집 40%, 미리보기 60%" tabindex="0"></div>
+        <section class="markdown-preview-panel" id="markdownPreviewPanel" aria-label="Markdown 미리보기">
           <div class="markdown-panel-header">
             <span>미리보기</span>
+            <details class="markdown-outline" id="markdownOutline" hidden>
+              <summary>목차 <span id="markdownHeadingCount"></span></summary>
+              <nav class="markdown-outline-nav" id="markdownOutlineNav" aria-label="문서 목차">
+                <ol class="markdown-outline-list" id="markdownOutlineList"></ol>
+              </nav>
+            </details>
             <span class="markdown-panel-meta">실시간</span>
           </div>
           <article class="markdown-preview" id="markdownPreview"></article>
@@ -948,13 +1196,24 @@
     const markdownInput = document.getElementById('markdownInput');
     const markdownPreview = document.getElementById('markdownPreview');
     const markdownLineCount = document.getElementById('markdownLineCount');
+    const markdownLineNumbers = document.getElementById('markdownLineNumbers');
     const markdownFileInput = document.getElementById('markdownFileInput');
+    const markdownFormatToolbar = document.getElementById('markdownFormatToolbar');
+    const markdownOutline = document.getElementById('markdownOutline');
+    const markdownOutlineList = document.getElementById('markdownOutlineList');
+    const markdownHeadingCount = document.getElementById('markdownHeadingCount');
+    const markdownGrid = document.querySelector('.markdown-grid');
+    const markdownSplitter = document.getElementById('markdownSplitter');
+    const markdownSplitRange = document.getElementById('markdownSplitRange');
+    const markdownSplitValue = document.getElementById('markdownSplitValue');
+    const markdownFocusBtn = document.getElementById('markdownFocusBtn');
     const markdownModeTab = document.getElementById('markdownModeTab');
     const diffModeTab = document.getElementById('diffModeTab');
     const diffActions = document.getElementById('diffActions');
     const diffView = document.getElementById('diffView');
     const markdownView = document.getElementById('markdownView');
     const MARKDOWN_DRAFT_KEY = 'diffViewerMarkdownDraftV1';
+    const MARKDOWN_SPLIT_KEY = 'diffViewerMarkdownSplitV1';
 
     const leftCode = document.getElementById('leftCode');
     const rightCode = document.getElementById('rightCode');
@@ -1021,10 +1280,27 @@
     });
 
     markdownInput.addEventListener('input', updateMarkdownPreview);
+    markdownInput.addEventListener('scroll', syncMarkdownLineNumbers);
+    markdownInput.addEventListener('keydown', handleMarkdownShortcuts);
+    markdownFormatToolbar.addEventListener('click', event => {
+      const button = event.target.closest('button[data-format]');
+      if (button) applyMarkdownFormat(button.dataset.format);
+    });
+    markdownOutlineList.addEventListener('click', event => {
+      if (event.target.closest('a')) markdownOutline.open = false;
+    });
     document.getElementById('markdownSampleBtn').addEventListener('click', insertMarkdownSample);
     document.getElementById('markdownOpenBtn').addEventListener('click', () => markdownFileInput.click());
     document.getElementById('markdownDownloadBtn').addEventListener('click', downloadMarkdown);
+    document.getElementById('markdownPrintBtn').addEventListener('click', printMarkdown);
     document.getElementById('markdownClearBtn').addEventListener('click', clearMarkdown);
+    markdownSplitRange.addEventListener('input', () => setMarkdownSplit(markdownSplitRange.value));
+    markdownSplitter.addEventListener('pointerdown', startMarkdownResize);
+    markdownSplitter.addEventListener('pointermove', resizeMarkdownWithPointer);
+    markdownSplitter.addEventListener('pointerup', finishMarkdownResize);
+    markdownSplitter.addEventListener('pointercancel', finishMarkdownResize);
+    markdownSplitter.addEventListener('keydown', handleMarkdownSplitterKeydown);
+    markdownFocusBtn.addEventListener('click', toggleMarkdownPreviewFocus);
     markdownFileInput.addEventListener('change', loadMarkdownFile);
     window.addEventListener('popstate', () => {
       setActiveView(new URLSearchParams(window.location.search).get('view') === 'markdown' ? 'markdown' : 'diff', false);
@@ -1064,6 +1340,12 @@
       }
     }
 
+    function printMarkdown() {
+      document.body.classList.add('print-markdown');
+      window.addEventListener('afterprint', () => document.body.classList.remove('print-markdown'), { once: true });
+      window.print();
+    }
+
     function loadMarkdownDraft() {
       try {
         return localStorage.getItem(MARKDOWN_DRAFT_KEY) || '';
@@ -1072,19 +1354,175 @@
       }
     }
 
+    function loadMarkdownSplit() {
+      try {
+        const saved = Number(localStorage.getItem(MARKDOWN_SPLIT_KEY));
+        return Number.isFinite(saved) && saved >= 22 && saved <= 68 ? saved : 40;
+      } catch {
+        return 40;
+      }
+    }
+
+    function setMarkdownSplit(value, persist = true) {
+      const numericValue = Number(value);
+      const split = Math.min(68, Math.max(22, Number.isFinite(numericValue) ? Math.round(numericValue) : 40));
+      markdownGrid.style.setProperty('--markdown-editor-fr', `${split}fr`);
+      markdownGrid.style.setProperty('--markdown-preview-fr', `${100 - split}fr`);
+      markdownSplitRange.value = String(split);
+      markdownSplitValue.value = `${split}%`;
+      markdownSplitter.setAttribute('aria-valuenow', String(split));
+      markdownSplitter.setAttribute('aria-valuetext', `편집 ${split}%, 미리보기 ${100 - split}%`);
+
+      if (persist) {
+        try {
+          localStorage.setItem(MARKDOWN_SPLIT_KEY, String(split));
+        } catch {
+          // Resizing still works when browser storage is unavailable.
+        }
+      }
+    }
+
+    function startMarkdownResize(event) {
+      if (window.innerWidth <= 900 || markdownView.classList.contains('preview-focus')) return;
+      event.preventDefault();
+      markdownSplitter.classList.add('is-dragging');
+      markdownSplitter.setPointerCapture(event.pointerId);
+      resizeMarkdownWithPointer(event);
+    }
+
+    function resizeMarkdownWithPointer(event) {
+      if (!markdownSplitter.hasPointerCapture(event.pointerId)) return;
+      const bounds = markdownGrid.getBoundingClientRect();
+      const availableWidth = bounds.width - markdownSplitter.offsetWidth - 20;
+      if (availableWidth <= 0) return;
+      const editorWidth = event.clientX - bounds.left - 17;
+      setMarkdownSplit((editorWidth / availableWidth) * 100, false);
+    }
+
+    function finishMarkdownResize(event) {
+      if (!markdownSplitter.hasPointerCapture(event.pointerId)) return;
+      markdownSplitter.classList.remove('is-dragging');
+      setMarkdownSplit(markdownSplitRange.value);
+      markdownSplitter.releasePointerCapture(event.pointerId);
+    }
+
+    function handleMarkdownSplitterKeydown(event) {
+      const current = Number(markdownSplitRange.value);
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') setMarkdownSplit(current - 2);
+      else if (event.key === 'ArrowRight' || event.key === 'ArrowUp') setMarkdownSplit(current + 2);
+      else if (event.key === 'Home') setMarkdownSplit(22);
+      else if (event.key === 'End') setMarkdownSplit(68);
+      else return;
+      event.preventDefault();
+    }
+
+    function toggleMarkdownPreviewFocus() {
+      const isFocused = markdownView.classList.toggle('preview-focus');
+      markdownFocusBtn.setAttribute('aria-pressed', String(isFocused));
+      markdownFocusBtn.textContent = isFocused ? '편집 창 표시' : '미리보기 집중';
+      markdownSplitRange.disabled = isFocused;
+    }
+
+    function refreshMarkdownLineNumbers() {
+      const lines = markdownInput.value.replace(/\r\n?/g, '\n').split('\n');
+      markdownLineNumbers.textContent = lines.map((_, index) => index + 1).join('\n');
+      syncMarkdownLineNumbers();
+    }
+
+    function syncMarkdownLineNumbers() {
+      markdownLineNumbers.style.transform = `translateY(${-markdownInput.scrollTop}px)`;
+    }
+
     function updateMarkdownPreview() {
       const markdown = markdownInput.value;
       const lineCount = markdown ? markdown.replace(/\r\n?/g, '\n').split('\n').length : 0;
       markdownLineCount.textContent = `${lineCount}줄 · ${markdown.length}자`;
+      refreshMarkdownLineNumbers();
       markdownPreview.innerHTML = markdown.trim()
         ? renderMarkdown(markdown)
         : '<p class="markdown-empty">미리보기에 표시할 내용이 없습니다.</p>';
+      updateMarkdownOutline();
 
       try {
         localStorage.setItem(MARKDOWN_DRAFT_KEY, markdown);
       } catch {
         // The editor still works when browser storage is unavailable.
       }
+    }
+
+    function updateMarkdownOutline() {
+      const headings = Array.from(markdownPreview.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]'));
+      const items = headings.map(heading => {
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        item.dataset.level = heading.tagName.slice(1);
+        link.href = `#${encodeURIComponent(heading.id)}`;
+        link.textContent = heading.textContent.trim() || '제목 없음';
+        item.appendChild(link);
+        return item;
+      });
+      markdownOutlineList.replaceChildren(...items);
+      markdownHeadingCount.textContent = headings.length ? `(${headings.length})` : '';
+      markdownOutline.hidden = headings.length === 0;
+    }
+
+    function applyMarkdownFormat(format) {
+      const start = markdownInput.selectionStart;
+      const end = markdownInput.selectionEnd;
+      const value = markdownInput.value;
+
+      if (format === 'heading') {
+        const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+        const nextNewline = value.indexOf('\n', start);
+        const lineEnd = nextNewline < 0 ? value.length : nextNewline;
+        const currentLine = value.slice(lineStart, lineEnd);
+        const headingText = currentLine.replace(/^\s{0,3}#{1,6}\s*/, '');
+        markdownInput.setRangeText(`## ${headingText}`, lineStart, lineEnd, 'end');
+        markdownInput.focus();
+        markdownInput.setSelectionRange(lineStart + 3, lineStart + 3);
+        updateMarkdownPreview();
+        return;
+      }
+
+      const selectedText = value.slice(start, end);
+      if (format === 'link') {
+        const label = selectedText || '텍스트';
+        const replacement = `[${label}](https://)`;
+        markdownInput.setRangeText(replacement, start, end, 'end');
+        const urlStart = start + label.length + 3;
+        markdownInput.focus();
+        markdownInput.setSelectionRange(urlStart, urlStart + 'https://'.length);
+        updateMarkdownPreview();
+        return;
+      }
+
+      const wrappers = {
+        bold: ['**', '**'],
+        italic: ['*', '*'],
+        code: ['`', '`']
+      };
+      const wrapper = wrappers[format];
+      if (!wrapper) return;
+
+      const content = selectedText || '텍스트';
+      markdownInput.setRangeText(`${wrapper[0]}${content}${wrapper[1]}`, start, end, 'end');
+      markdownInput.focus();
+      const innerStart = start + wrapper[0].length;
+      markdownInput.setSelectionRange(innerStart, innerStart + content.length);
+      updateMarkdownPreview();
+    }
+
+    function handleMarkdownShortcuts(event) {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const key = event.key.toLowerCase();
+      let format = null;
+      if (key === 'b' && !event.shiftKey) format = 'bold';
+      else if (key === 'i' && !event.shiftKey) format = 'italic';
+      else if (key === 'k') format = event.shiftKey ? 'code' : 'link';
+      if (!format) return;
+
+      event.preventDefault();
+      applyMarkdownFormat(format);
     }
 
     function insertMarkdownSample() {
@@ -1985,6 +2423,7 @@
       compareCodes();
     }
 
+    setMarkdownSplit(loadMarkdownSplit(), false);
     markdownInput.value = loadMarkdownDraft();
     updateMarkdownPreview();
     setActiveView(new URLSearchParams(window.location.search).get('view') === 'markdown' ? 'markdown' : 'diff', false);
