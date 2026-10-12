@@ -29,6 +29,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
 
     body {
       margin: 0;
@@ -589,6 +590,201 @@
       margin: 0;
       line-height: 1.5;
     }
+
+    .mode-switch {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(51, 65, 85, 0.7);
+    }
+
+    .mode-tab {
+      min-width: 130px;
+      border-color: transparent;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .mode-tab[aria-selected="true"] {
+      border-color: #3b82f6;
+      background: rgba(37, 99, 235, 0.18);
+      color: #dbeafe;
+    }
+
+    .markdown-workspace {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .markdown-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(17, 24, 39, 0.92);
+    }
+
+    .markdown-toolbar-copy {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .markdown-toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .markdown-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .markdown-editor-panel,
+    .markdown-preview-panel {
+      min-width: 0;
+      min-height: 620px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(17, 24, 39, 0.92);
+    }
+
+    .markdown-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #1e293b;
+      font-weight: 800;
+    }
+
+    .markdown-panel-meta {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    #markdownInput {
+      display: block;
+      width: 100%;
+      min-height: 568px;
+      padding: 20px;
+      resize: vertical;
+      border: 0;
+      outline: 0;
+      background: #020617;
+      color: var(--text);
+      font-family: var(--code-font);
+      font-size: 14px;
+      line-height: 1.65;
+      tab-size: 2;
+    }
+
+    #markdownInput:focus-visible {
+      box-shadow: inset 0 0 0 2px #3b82f6;
+    }
+
+    .markdown-preview {
+      min-height: 568px;
+      padding: 28px 34px;
+      overflow-wrap: anywhere;
+      background: #f8fafc;
+      color: #1e293b;
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .markdown-preview > :first-child { margin-top: 0; }
+    .markdown-preview > :last-child { margin-bottom: 0; }
+
+    .markdown-preview h1,
+    .markdown-preview h2,
+    .markdown-preview h3,
+    .markdown-preview h4,
+    .markdown-preview h5,
+    .markdown-preview h6 {
+      margin: 1.5em 0 0.55em;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+
+    .markdown-preview h1 { padding-bottom: 0.3em; border-bottom: 1px solid #cbd5e1; font-size: 2em; }
+    .markdown-preview h2 { padding-bottom: 0.25em; border-bottom: 1px solid #e2e8f0; font-size: 1.55em; }
+    .markdown-preview h3 { font-size: 1.25em; }
+    .markdown-preview p { margin: 0 0 1em; }
+    .markdown-preview a { color: #2563eb; text-decoration: underline; text-underline-offset: 2px; }
+    .markdown-preview ul,
+    .markdown-preview ol { padding-left: 1.7em; margin: 0 0 1em; }
+    .markdown-preview li + li { margin-top: 0.25em; }
+    .markdown-preview blockquote {
+      margin: 0 0 1em;
+      padding: 0.2em 1em;
+      border-left: 4px solid #60a5fa;
+      color: #475569;
+      background: #eff6ff;
+    }
+    .markdown-preview blockquote > :last-child { margin-bottom: 0; }
+    .markdown-preview pre {
+      margin: 0 0 1em;
+      padding: 16px;
+      overflow: auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: var(--code-font);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .markdown-preview code {
+      padding: 0.12em 0.35em;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #be123c;
+      font-family: var(--code-font);
+      font-size: 0.9em;
+    }
+    .markdown-preview pre code { padding: 0; background: transparent; color: inherit; font-size: inherit; }
+    .markdown-preview hr { margin: 1.7em 0; border: 0; border-top: 1px solid #cbd5e1; }
+    .markdown-preview table { width: 100%; margin: 0 0 1em; border-collapse: collapse; display: block; overflow-x: auto; }
+    .markdown-preview th,
+    .markdown-preview td { padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; }
+    .markdown-preview th { background: #e2e8f0; }
+    .markdown-preview img { max-width: 100%; height: auto; border-radius: 6px; }
+
+    .markdown-empty {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    @media (max-width: 900px) {
+      .markdown-grid { grid-template-columns: 1fr; }
+      .markdown-editor-panel,
+      .markdown-preview-panel { min-height: 0; }
+      #markdownInput,
+      .markdown-preview { min-height: 420px; }
+      .markdown-preview { padding: 24px; }
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 18px 16px 12px; }
+      main { padding: 16px; }
+      .mode-tab { min-width: 0; flex: 1; }
+      .markdown-toolbar { align-items: flex-start; }
+      .markdown-toolbar-actions { width: 100%; }
+      .markdown-toolbar-actions button { flex: 1; }
+    }
   </style>
 </head>
 <body>
@@ -596,17 +792,22 @@
     <div class="title-row">
       <div>
         <h1>Diffy</h1>
-        <p class="subtitle">왼쪽 원본 코드와 오른쪽 수정 코드를 비교하여 라인별 변경사항을 확인합니다.</p>
+        <p class="subtitle">코드를 비교하거나 Markdown 문서를 실시간으로 미리보세요.</p>
       </div>
-      <div class="actions">
+      <div class="actions" id="diffActions">
         <button id="sampleBtn">샘플 입력</button>
         <button id="clearBtn">초기화</button>
         <button class="primary" id="compareBtn">수동 재비교</button>
       </div>
     </div>
+    <nav class="mode-switch" role="tablist" aria-label="도구 선택">
+      <button class="mode-tab" id="diffModeTab" type="button" role="tab" aria-selected="true" aria-controls="diffView">Diff 비교</button>
+      <button class="mode-tab" id="markdownModeTab" type="button" role="tab" aria-selected="false" aria-controls="markdownView">Markdown 미리보기</button>
+    </nav>
   </header>
 
   <main>
+    <div class="view-panel" id="diffView" role="tabpanel" aria-labelledby="diffModeTab">
     <div class="workspace-grid">
       <div class="workspace-main">
     <section class="stats">
@@ -698,6 +899,36 @@
         <ul id="historyList" class="history-list"></ul>
       </aside>
     </div>
+    </div>
+
+    <section class="markdown-workspace view-panel" id="markdownView" role="tabpanel" aria-labelledby="markdownModeTab" hidden>
+      <div class="markdown-toolbar">
+        <span class="markdown-toolbar-copy">Markdown을 입력하면 오른쪽에 실시간으로 렌더링됩니다.</span>
+        <div class="markdown-toolbar-actions">
+          <button id="markdownSampleBtn" type="button">샘플 입력</button>
+          <button id="markdownOpenBtn" type="button">.md 파일 열기</button>
+          <button class="primary" id="markdownDownloadBtn" type="button">Markdown 다운로드</button>
+          <button id="markdownClearBtn" type="button">초기화</button>
+          <input id="markdownFileInput" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden />
+        </div>
+      </div>
+      <div class="markdown-grid">
+        <section class="markdown-editor-panel" aria-label="Markdown 편집기">
+          <div class="markdown-panel-header">
+            <span>편집</span>
+            <span class="markdown-panel-meta" id="markdownLineCount">0줄 · 0자</span>
+          </div>
+          <textarea id="markdownInput" spellcheck="false" aria-label="Markdown 원문" placeholder="# 문서를 작성하세요&#10;&#10;작성하는 즉시 미리보기에 반영됩니다."></textarea>
+        </section>
+        <section class="markdown-preview-panel" aria-label="Markdown 미리보기">
+          <div class="markdown-panel-header">
+            <span>미리보기</span>
+            <span class="markdown-panel-meta">실시간</span>
+          </div>
+          <article class="markdown-preview" id="markdownPreview"></article>
+        </section>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -714,6 +945,17 @@
 
   <script>
     (function() {
+    const markdownInput = document.getElementById('markdownInput');
+    const markdownPreview = document.getElementById('markdownPreview');
+    const markdownLineCount = document.getElementById('markdownLineCount');
+    const markdownFileInput = document.getElementById('markdownFileInput');
+    const markdownModeTab = document.getElementById('markdownModeTab');
+    const diffModeTab = document.getElementById('diffModeTab');
+    const diffActions = document.getElementById('diffActions');
+    const diffView = document.getElementById('diffView');
+    const markdownView = document.getElementById('markdownView');
+    const MARKDOWN_DRAFT_KEY = 'diffViewerMarkdownDraftV1';
+
     const leftCode = document.getElementById('leftCode');
     const rightCode = document.getElementById('rightCode');
     const leftLineNumbers = document.getElementById('leftLineNumbers');
@@ -759,6 +1001,35 @@
     saveHistoryBtn.addEventListener('click', saveCurrentComparison);
     clearHistoryBtn.addEventListener('click', clearHistory);
 
+    diffModeTab.addEventListener('click', () => setActiveView('diff', true));
+    markdownModeTab.addEventListener('click', () => setActiveView('markdown', true));
+    document.querySelector('.mode-switch').addEventListener('keydown', event => {
+      const tabs = [diffModeTab, markdownModeTab];
+      const currentIndex = tabs.indexOf(event.target);
+      if (currentIndex < 0) return;
+
+      let nextIndex = currentIndex;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex + tabs.length - 1) % tabs.length;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = tabs.length - 1;
+      else return;
+
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      tabs[nextIndex].click();
+    });
+
+    markdownInput.addEventListener('input', updateMarkdownPreview);
+    document.getElementById('markdownSampleBtn').addEventListener('click', insertMarkdownSample);
+    document.getElementById('markdownOpenBtn').addEventListener('click', () => markdownFileInput.click());
+    document.getElementById('markdownDownloadBtn').addEventListener('click', downloadMarkdown);
+    document.getElementById('markdownClearBtn').addEventListener('click', clearMarkdown);
+    markdownFileInput.addEventListener('change', loadMarkdownFile);
+    window.addEventListener('popstate', () => {
+      setActiveView(new URLSearchParams(window.location.search).get('view') === 'markdown' ? 'markdown' : 'diff', false);
+    });
+
     leftCode.addEventListener('input', () => handleCodeInput(leftCode, leftLineNumbers));
     rightCode.addEventListener('input', () => handleCodeInput(rightCode, rightLineNumbers));
     leftCode.addEventListener('scroll', () => syncLineNumberScroll(leftCode, leftLineNumbers));
@@ -774,6 +1045,334 @@
         }
       }
     });
+
+    function setActiveView(view, updateLocation) {
+      const showMarkdown = view === 'markdown';
+      diffView.hidden = showMarkdown;
+      markdownView.hidden = !showMarkdown;
+      diffActions.hidden = showMarkdown;
+      diffModeTab.setAttribute('aria-selected', String(!showMarkdown));
+      markdownModeTab.setAttribute('aria-selected', String(showMarkdown));
+      diffModeTab.tabIndex = showMarkdown ? -1 : 0;
+      markdownModeTab.tabIndex = showMarkdown ? 0 : -1;
+
+      if (updateLocation) {
+        const nextUrl = new URL(window.location.href);
+        if (showMarkdown) nextUrl.searchParams.set('view', 'markdown');
+        else nextUrl.searchParams.delete('view');
+        window.history.pushState({}, '', nextUrl);
+      }
+    }
+
+    function loadMarkdownDraft() {
+      try {
+        return localStorage.getItem(MARKDOWN_DRAFT_KEY) || '';
+      } catch {
+        return '';
+      }
+    }
+
+    function updateMarkdownPreview() {
+      const markdown = markdownInput.value;
+      const lineCount = markdown ? markdown.replace(/\r\n?/g, '\n').split('\n').length : 0;
+      markdownLineCount.textContent = `${lineCount}줄 · ${markdown.length}자`;
+      markdownPreview.innerHTML = markdown.trim()
+        ? renderMarkdown(markdown)
+        : '<p class="markdown-empty">미리보기에 표시할 내용이 없습니다.</p>';
+
+      try {
+        localStorage.setItem(MARKDOWN_DRAFT_KEY, markdown);
+      } catch {
+        // The editor still works when browser storage is unavailable.
+      }
+    }
+
+    function insertMarkdownSample() {
+      markdownInput.value = `# Markdown 실시간 미리보기\n\nDiffy에서 **Markdown 문서**를 작성하고 결과를 바로 확인해 보세요.\n\n## 지원 문법\n\n- 제목, 문단, **굵게**, *기울임*, ~~취소선~~\n- 목록과 인용문\n- \`인라인 코드\`와 코드 블록\n- [링크](https://example.com)와 표\n\n> 입력 내용은 이 브라우저에 임시 저장됩니다.\n\n| 기능 | 지원 |\n| --- | --- |\n| 실시간 미리보기 | 예 |\n| Markdown 파일 열기 | 예 |\n| 파일로 다운로드 | 예 |\n\n\x60\x60\x60js\nconst greeting = '안녕하세요, Diffy!';\nconsole.log(greeting);\n\x60\x60\x60`;
+      updateMarkdownPreview();
+    }
+
+    function clearMarkdown() {
+      markdownInput.value = '';
+      updateMarkdownPreview();
+      markdownInput.focus();
+    }
+
+    function loadMarkdownFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        markdownInput.value = typeof reader.result === 'string' ? reader.result : '';
+        updateMarkdownPreview();
+        markdownInput.focus();
+      });
+      reader.readAsText(file);
+      markdownFileInput.value = '';
+    }
+
+    function downloadMarkdown() {
+      const blob = new Blob([markdownInput.value], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = 'document.md';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function splitMarkdownTableRow(line) {
+      let source = line.trim();
+      if (source.startsWith('|')) source = source.slice(1);
+      if (source.endsWith('|')) {
+        let slashCount = 0;
+        for (let i = source.length - 2; i >= 0 && source[i] === '\\'; i--) slashCount++;
+        if (slashCount % 2 === 0) source = source.slice(0, -1);
+      }
+
+      const cells = [];
+      let cell = '';
+      for (let i = 0; i < source.length; i++) {
+        if (source[i] === '\\' && source[i + 1] === '|') {
+          cell += '|';
+          i++;
+        } else if (source[i] === '|') {
+          cells.push(cell.trim());
+          cell = '';
+        } else {
+          cell += source[i];
+        }
+      }
+      cells.push(cell.trim());
+      return cells;
+    }
+
+    function isMarkdownTableStart(lines, index) {
+      if (index + 1 >= lines.length || !lines[index].includes('|')) return false;
+      const columns = splitMarkdownTableRow(lines[index + 1]);
+      return columns.length > 0 && columns.every(column => /^:?-{3,}:?$/.test(column));
+    }
+
+    function isMarkdownBlockStart(lines, index) {
+      const line = lines[index] || '';
+      return /^\s{0,3}(?:#{1,6}\s|```|~~~|>\s?|[-*_]\s*[-*_]\s*[-*_])/.test(line)
+        || /^\s*(?:[-+*]\s+|\d+[.)]\s+)/.test(line)
+        || (index + 1 < lines.length && /^\s{0,3}(?:=+|-+)\s*$/.test(lines[index + 1]))
+        || isMarkdownTableStart(lines, index);
+    }
+
+    function getSafeMarkdownUrl(rawUrl, isImage) {
+      const value = rawUrl.trim();
+      if (isImage) return /^https?:\/\/\S+$/i.test(value) ? value : null;
+      if (/^(?:https?:\/\/|mailto:)/i.test(value)) {
+        try {
+          const parsed = new URL(value, window.location.href);
+          return ['http:', 'https:', 'mailto:'].includes(parsed.protocol) ? value : null;
+        } catch {
+          return null;
+        }
+      }
+      if (/^[a-z][a-z0-9+.-]*:/i.test(value) || /^[/\\]{2}/.test(value)) return null;
+      if (/^#[^\s]*$/.test(value)) return value;
+      try {
+        const parsed = new URL(value, window.location.href);
+        return ['http:', 'https:'].includes(parsed.protocol) ? value : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function formatInlineMarkdown(value) {
+      let html = escapeHtml(value);
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+      html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+      html = html.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+      html = html.replace(/(^|[^_])_([^_\n]+)_(?![A-Za-z0-9])/g, '$1<em>$2</em>');
+      return html;
+    }
+
+    function renderInlineMarkdown(value) {
+      let text = value;
+      const protectedHtml = [];
+      let marker = '\uE000DIFFYMD';
+      while (text.includes(marker)) marker += 'X';
+      const protect = html => {
+        const token = `${marker}${protectedHtml.length}\uE001`;
+        protectedHtml.push(html);
+        return token;
+      };
+
+      text = text.replace(/(`+)(.+?)\1/g, (_, _ticks, code) => protect(`<code>${escapeHtml(code)}</code>`));
+      const escapablePunctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+      text = text.replace(/\\(.)/gs, (match, character) => escapablePunctuation.includes(character)
+        ? protect(escapeHtml(character))
+        : match);
+      text = text.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (match, alt, rawUrl, title) => {
+        const safeUrl = getSafeMarkdownUrl(rawUrl, true);
+        if (!safeUrl) return match;
+        const titleAttribute = title ? ` title="${escapeHtml(title)}"` : '';
+        return protect(`<img src="${escapeHtml(safeUrl)}" alt="${escapeHtml(alt)}"${titleAttribute} loading="lazy" />`);
+      });
+      text = text.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (match, label, rawUrl, title) => {
+        const safeUrl = getSafeMarkdownUrl(rawUrl, false);
+        if (!safeUrl) return match;
+        const titleAttribute = title ? ` title="${escapeHtml(title)}"` : '';
+        const targetAttributes = /^https?:\/\//i.test(safeUrl) ? ' target="_blank" rel="noopener noreferrer"' : '';
+        return protect(`<a href="${escapeHtml(safeUrl)}"${titleAttribute}${targetAttributes}>${formatInlineMarkdown(label)}</a>`);
+      });
+
+      let html = formatInlineMarkdown(text);
+      protectedHtml.forEach((snippet, index) => {
+        html = html.replace(`${marker}${index}\uE001`, snippet);
+      });
+      return html;
+    }
+
+    function createMarkdownHeadingId(text, headingCounts) {
+      const base = text
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/[`*_~]/g, '')
+        .toLowerCase()
+        .replace(/[^\w\s\-\u0080-\uFFFF]/g, '')
+        .trim()
+        .replace(/\s+/g, '-') || 'section';
+      const count = headingCounts.get(base) || 0;
+      headingCounts.set(base, count + 1);
+      return count ? `${base}-${count}` : base;
+    }
+
+    function parseMarkdownList(lines, startIndex, baseIndent) {
+      const firstItem = lines[startIndex].match(/^(\s*)([-+*]|\d+[.)])\s+(.+)$/);
+      if (!firstItem) return { html: '', nextIndex: startIndex };
+
+      const ordered = /^\d/.test(firstItem[2]);
+      const items = [];
+      let index = startIndex;
+
+      while (index < lines.length) {
+        const item = lines[index].match(/^(\s*)([-+*]|\d+[.)])\s+(.+)$/);
+        if (!item) break;
+
+        const indent = item[1].replace(/\t/g, '  ').length;
+        if (indent < baseIndent) break;
+        if (indent > baseIndent) {
+          if (!items.length) break;
+          const nested = parseMarkdownList(lines, index, indent);
+          if (nested.nextIndex === index) break;
+          items[items.length - 1].nested.push(nested.html);
+          index = nested.nextIndex;
+          continue;
+        }
+
+        if (/^\d/.test(item[2]) !== ordered) break;
+        items.push({ text: item[3], nested: [] });
+        index++;
+      }
+
+      const tag = ordered ? 'ol' : 'ul';
+      const startNumber = ordered ? Number(firstItem[2].match(/\d+/)[0]) : 1;
+      const startAttribute = ordered && startNumber > 1 ? ` start="${startNumber}"` : '';
+      const itemHtml = items.map(item => `<li>${renderInlineMarkdown(item.text)}${item.nested.join('')}</li>`).join('');
+      return { html: `<${tag}${startAttribute}>${itemHtml}</${tag}>`, nextIndex: index };
+    }
+
+    function renderMarkdown(markdown, headingCounts = new Map()) {
+      const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+      const html = [];
+      let index = 0;
+
+      while (index < lines.length) {
+        const line = lines[index];
+        if (!line.trim()) {
+          index++;
+          continue;
+        }
+
+        const fenceMatch = line.match(/^\s{0,3}(```+|~~~+)(.*)$/);
+        if (fenceMatch) {
+          const fence = fenceMatch[1];
+          const closePattern = new RegExp(`^\\s{0,3}${fence[0]}{${fence.length},}\\s*$`);
+          const codeLines = [];
+          index++;
+          while (index < lines.length && !closePattern.test(lines[index])) codeLines.push(lines[index++]);
+          if (index < lines.length) index++;
+          html.push(`<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`);
+          continue;
+        }
+
+        const headingMatch = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+        if (headingMatch) {
+          const level = headingMatch[1].length;
+          const id = escapeHtml(createMarkdownHeadingId(headingMatch[2], headingCounts));
+          html.push(`<h${level} id="${id}">${renderInlineMarkdown(headingMatch[2])}</h${level}>`);
+          index++;
+          continue;
+        }
+
+        if (index + 1 < lines.length && /^\s{0,3}(=+|-+)\s*$/.test(lines[index + 1])) {
+          const level = lines[index + 1].trim()[0] === '=' ? 1 : 2;
+          const headingText = line.trim();
+          const id = escapeHtml(createMarkdownHeadingId(headingText, headingCounts));
+          html.push(`<h${level} id="${id}">${renderInlineMarkdown(headingText)}</h${level}>`);
+          index += 2;
+          continue;
+        }
+
+        if (/^\s{0,3}(?:(?:\*\s*){3,}|(?:-\s*){3,}|(?:_\s*){3,})$/.test(line)) {
+          html.push('<hr />');
+          index++;
+          continue;
+        }
+
+        if (/^\s{0,3}>/.test(line)) {
+          const quoteLines = [];
+          while (index < lines.length && /^\s{0,3}>/.test(lines[index])) {
+            quoteLines.push(lines[index++].replace(/^\s{0,3}>\s?/, ''));
+          }
+          html.push(`<blockquote>${renderMarkdown(quoteLines.join('\n'), headingCounts)}</blockquote>`);
+          continue;
+        }
+
+        const listMatch = line.match(/^(\s{0,3})([-+*]|\d+[.)])\s+(.+)$/);
+        if (listMatch) {
+          const list = parseMarkdownList(lines, index, listMatch[1].replace(/\t/g, '  ').length);
+          html.push(list.html);
+          index = list.nextIndex;
+          continue;
+        }
+
+        if (isMarkdownTableStart(lines, index)) {
+          const headers = splitMarkdownTableRow(lines[index]);
+          index += 2;
+          const rows = [];
+          while (index < lines.length && lines[index].trim() && lines[index].includes('|')) {
+            rows.push(splitMarkdownTableRow(lines[index++]));
+          }
+          const headerHtml = headers.map(cell => `<th>${renderInlineMarkdown(cell)}</th>`).join('');
+          const rowHtml = rows.map(row => `<tr>${headers.map((_, cellIndex) => `<td>${renderInlineMarkdown(row[cellIndex] || '')}</td>`).join('')}</tr>`).join('');
+          html.push(`<table><thead><tr>${headerHtml}</tr></thead><tbody>${rowHtml}</tbody></table>`);
+          continue;
+        }
+
+        const paragraphLines = [line.trimStart()];
+        index++;
+        while (index < lines.length && lines[index].trim() && !isMarkdownBlockStart(lines, index)) {
+          paragraphLines.push(lines[index++].trimStart());
+        }
+        const paragraphHtml = paragraphLines.map((paragraphLine, lineIndex) => {
+          const hardBreak = /(?: {2,}|\\)$/.test(paragraphLine) && lineIndex < paragraphLines.length - 1;
+          const content = hardBreak ? paragraphLine.replace(/(?: {2,}|\\)$/, '') : paragraphLine;
+          return `${renderInlineMarkdown(content)}${lineIndex < paragraphLines.length - 1 ? (hardBreak ? '<br />' : ' ') : ''}`;
+        }).join('');
+        html.push(`<p>${paragraphHtml}</p>`);
+      }
+
+      return html.join('\n');
+    }
 
     function escapeHtml(value) {
       return value
@@ -1385,6 +1984,10 @@
       refreshLineNumbers(rightCode, rightLineNumbers);
       compareCodes();
     }
+
+    markdownInput.value = loadMarkdownDraft();
+    updateMarkdownPreview();
+    setActiveView(new URLSearchParams(window.location.search).get('view') === 'markdown' ? 'markdown' : 'diff', false);
 
     refreshLineNumbers(leftCode, leftLineNumbers);
     refreshLineNumbers(rightCode, rightLineNumbers);
