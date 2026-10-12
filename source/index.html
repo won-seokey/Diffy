@@ -707,8 +707,11 @@
 
     .markdown-editor-panel,
     .markdown-preview-panel {
+      display: flex;
+      flex-direction: column;
       min-width: 0;
-      min-height: 620px;
+      height: clamp(420px, 72vh, 760px);
+      min-height: 0;
       overflow: hidden;
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -718,6 +721,7 @@
     .markdown-panel-header {
       position: relative;
       z-index: 1;
+      flex: 0 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -738,7 +742,8 @@
       display: grid;
       grid-template-columns: 52px minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr);
-      height: 568px;
+      flex: 1 1 auto;
+      height: auto;
       min-height: 0;
       overflow: hidden;
       background: #020617;
@@ -765,6 +770,7 @@
     }
 
     .markdown-format-toolbar {
+      flex: 0 0 auto;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
@@ -867,8 +873,10 @@
     }
 
     .markdown-preview {
-      min-height: 568px;
+      flex: 1 1 auto;
+      min-height: 0;
       padding: 28px 34px;
+      overflow: auto;
       overflow-wrap: anywhere;
       background: #f8fafc;
       color: #1e293b;
@@ -947,11 +955,6 @@
       .markdown-grid { grid-template-columns: 1fr; }
       .markdown-layout-control,
       .markdown-splitter { display: none; }
-      .markdown-editor-panel,
-      .markdown-preview-panel { min-height: 0; }
-      .markdown-input-wrap,
-      .markdown-preview { min-height: 420px; }
-      .markdown-input-wrap { height: 420px; }
       #markdownInput { height: 100%; }
       .markdown-preview { padding: 24px; }
     }
@@ -980,6 +983,7 @@
       body.print-markdown #markdownView .markdown-grid { display: block; }
       body.print-markdown #markdownView .markdown-preview-panel {
         display: block;
+        height: auto;
         min-height: 0;
         overflow: visible;
         border: 0;
